@@ -2,6 +2,14 @@
 
 这是一个纯前端图片压缩网站：上传图片后，浏览器在本地用 Canvas 重新编码来生成压缩预览，并支持下载压缩后的图片。
 
+## 在线体验
+
+- GitHub Pages：`https://gxc904.github.io/image-compressor/image-compressor/`
+
+## 项目预览
+
+![图片压缩器预览](./preview.svg)
+
 ## 如何运行
 
 1. 直接双击打开：`index.html`
