@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>图片压缩器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4.3 14.2L9 9.5L12.1 12.6L16.2 8.5L18.9 11.2V16.6C18.9 17.5 18.2 18.2 17.3 18.2H5.6C4.7 18.2 4 17.5 4 16.6V14.2H4.3Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+              />
+              <path d="M6.1 6.1H14.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              <path
+                d="M6.1 6.1C6.1 8.15 7.95 9.9 10 9.9C12.05 9.9 13.9 8.15 13.9 6.1"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="title">图片压缩器</div>
+            <div class="subtitle">上传→预览→下载（全部在本地完成）</div>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card uploader">
+          <div
+            class="dropzone"
+            id="dropzone"
+            tabindex="0"
+            role="button"
+            aria-label="上传图片"
+          >
+            <div class="dropzone-inner">
+              <div class="dropicon" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12 16V4"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M7 9L12 4L17 9"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M20 16.5C20 18.9853 17.7614 21 15.0 21H9.0C6.23858 21 4 18.9853 4 16.5"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="droptext">
+                <div class="dropheadline">拖拽图片到这里</div>
+                <div class="drophelp">或点击选择文件（仅支持图片）</div>
+              </div>
+              <button class="ghostbtn" type="button" id="pickBtn">
+                选择图片
+              </button>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" hidden />
+          </div>
+
+          <div class="meta">
+            <div class="meta-row">
+              <div class="meta-k">文件名</div>
+              <div class="meta-v" id="originalFileName">-</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-k">大小</div>
+              <div class="meta-v" id="originalSize">-</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-k">尺寸</div>
+              <div class="meta-v" id="originalDims">-</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card controls">
+          <div class="section-title">压缩设置</div>
+
+          <div class="field">
+            <label for="formatSelect" class="label">输出格式</label>
+            <select id="formatSelect" class="select" aria-label="输出格式">
+              <option value="auto">自动（推荐 WebP/JPEG）</option>
+              <option value="webp">WebP</option>
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG（通常不会显著变小）</option>
+            </select>
+          </div>
+
+          <div class="field switch">
+            <label class="checkline">
+              <input type="checkbox" id="limitResize" checked />
+              <span>限制最大尺寸（更稳的压缩效果）</span>
+            </label>
+          </div>
+
+          <div class="field row">
+            <label for="maxDim" class="label">最大边</label>
+            <div class="inline">
+              <input
+                type="number"
+                id="maxDim"
+                class="input"
+                value="1920"
+                min="256"
+                max="10000"
+                step="1"
+              />
+              <span class="unit">px</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="quality" class="label">压缩质量</label>
+            <div class="range-head">
+              <span class="range-value" id="qualityValue">0.82</span>
+            </div>
+            <input type="range" id="quality" min="0.4" max="0.95" step="0.01" value="0.82" />
+            <div class="help" id="qualityHelp">质量越低，体积通常越小（画质也会更“糊”一点）。</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" id="compressBtn" type="button" disabled>开始压缩</button>
+            <button class="btn" id="resetBtn" type="button" disabled>重置</button>
+          </div>
+
+          <div class="status" id="status" aria-live="polite"></div>
+
+          <div class="fineprint">
+            <div>提示：</div>
+            <div>若图片非常大，建议先“限制最大尺寸”。</div>
+            <div>压缩逻辑基于浏览器的 Canvas 重编码，不会上传你的图片。</div>
+          </div>
+        </section>
+
+        <section class="card preview">
+          <div class="section-title">预览与下载</div>
+
+          <div class="preview-grid">
+            <div class="preview-item">
+              <div class="preview-label">原图</div>
+              <div class="imgbox">
+                <div class="placeholder" id="originalPlaceholder" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.5 7.5C4.5 6.39543 5.39543 5.5 6.5 5.5H17.5C18.6046 5.5 19.5 6.39543 19.5 7.5V16.5C19.5 17.6046 18.6046 18.5 17.5 18.5H6.5C5.39543 18.5 4.5 17.6046 4.5 16.5V7.5Z" stroke="rgba(255,255,255,0.75)" stroke-width="1.6"/>
+                    <path d="M8 11.5L10 13.5L13.5 10L16 12.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 8.8H9.01" stroke="rgba(124,92,255,0.95)" stroke-width="3" stroke-linecap="round"/>
+                  </svg>
+                  <div class="placeholder-text">等待上传</div>
+                </div>
+                <img id="originalPreview" class="previewimg" alt="原图预览" hidden />
+              </div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-label">压缩后</div>
+              <div class="imgbox">
+                <div class="placeholder" id="compressedPlaceholder" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 3.8H17C18.1046 3.8 19 4.69543 19 5.8V16.2C19 17.3046 18.1046 18.2 17 18.2H7C5.89543 18.2 5 17.3046 5 16.2V5.8C5 4.69543 5.89543 3.8 7 3.8Z" stroke="rgba(255,255,255,0.75)" stroke-width="1.6"/>
+                    <path d="M8 9.5H16" stroke="rgba(255,255,255,0.9)" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M8 13H13.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M13.2 19.9L14.6 17.6L15.9 19.9" stroke="rgba(124,92,255,0.95)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="placeholder-text">等待压缩</div>
+                </div>
+                <img id="compressedPreview" class="previewimg" alt="压缩后预览" hidden />
+              </div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stats-row">
+              <div class="meta-k">压缩后大小</div>
+              <div class="meta-v" id="compressedSize">-</div>
+            </div>
+            <div class="stats-row">
+              <div class="meta-k">节省空间</div>
+              <div class="meta-v" id="savedPct">-</div>
+            </div>
+          </div>
+
+          <div class="download-row">
+            <a id="downloadBtn" class="btn primary downloadbtn" href="#" download>下载压缩后的图片</a>
+            <div class="download-hint" id="downloadHint">等待你上传图片后开始压缩。</div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>浏览器内压缩，不上传图片。支持：JPEG / PNG / WebP（以你的浏览器能力为准）。</span>
+      </footer>
+    </div>
+
+    <div class="overlay hidden" id="overlay" aria-hidden="true">
+      <div class="spinner" role="status" aria-label="正在压缩"></div>
+      <div class="overlay-text" id="overlayText">压缩中…</div>
+    </div>
+
+    <script src="./main.js" defer></script>
+  </body>
+</html>
+
